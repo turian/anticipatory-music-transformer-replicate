@@ -24,9 +24,10 @@ build:
 
   # commands run after the environment is setup
   run:
+    - git clone https://github.com/jthickstun/anticipation.git && cd anticipation && pip install -e .
     - python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-small-800k')"
     - python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-medium-800k')"
-    - python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-large-800k')"
+    #- python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-large-800k')"
 
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"
