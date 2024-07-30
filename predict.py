@@ -20,20 +20,21 @@ class Predictor(BasePredictor):
                 end_time: float = Input(description="End time for the generation", default=10),
                 top_p: float = Input(description="Nucleus sampling probability", default=0.95),
                 mode: str = Input(description="Generation mode: 'AR' or 'AAR'", default='AR'),
-                inputs: str = Input(description="Input tokens as string", default=""),
-                controls: str = Input(description="Control tokens as string", default=""),
+                #inputs: str = Input(description="Input tokens as string", default=""),
+                #controls: str = Input(description="Control tokens as string", default=""),
                 debug: bool = Input(description="Enable debug outputs", default=False)
                 ) -> str:
         """Run a single prediction on the model"""
         # Convert string inputs back to lists (assuming simple comma-separated tokens)
-        input_tokens = [int(token) for token in inputs.split(',') if token.strip()]
-        control_tokens = [int(token) for token in controls.split(',') if token.strip()]
+        model = self.models[model]
+        input_tokens = None
+        control_tokens = None
 
         # Choose generation mode
         if mode == 'AR':
-            result = generate_ar(self.model, start_time, end_time, input_tokens, control_tokens, top_p, debug)
+            result = generate_ar(model, start_time, end_time, input_tokens, control_tokens, top_p, debug)
         elif mode == 'AAR':
-            result = generate(self.model, start_time, end_time, input_tokens, control_tokens, top_p, debug)
+            result = generate(model, start_time, end_time, input_tokens, control_tokens, top_p, debug)
         else:
             raise ValueError("Invalid mode specified. Choose 'AR' or 'AAR'.")
 
