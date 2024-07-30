@@ -19,15 +19,16 @@ build:
     - mido==1.2.10
     - numpy>=1.22.4
     - torch>=2.0.1
-    - transformers==4.29.2
+    - transformers
     - tqdm==4.65.0
+    #- transformers==4.29.2
 
   # commands run after the environment is setup
   run:
     - git clone https://github.com/jthickstun/anticipation.git && cd anticipation && pip install -e .
     - python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-small-800k')"
     - python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-medium-800k')"
-    #- python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-large-800k')"
+    - python -c "from transformers import AutoModelForCausalLM; model = AutoModelForCausalLM.from_pretrained('stanford-crfm/music-large-800k')"
 
 # predict.py defines how predictions are run on your model
 predict: "predict.py:Predictor"

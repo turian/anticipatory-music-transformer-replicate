@@ -6,13 +6,21 @@ from anticipation.sample import generate, generate_ar
 
 # Assuming all other required imports and functions (like generate and generate_ar) are defined in the same file or imported appropriately
 
-MODELS = ["stanford-crfm/music-medium-800k", "stanford-crfm/music-smallr-800k", "stanford-crfm/music-large-800k"]
+#MODELS = ["stanford-crfm/music-medium-800k", "stanford-crfm/music-small-800k", "stanford-crfm/music-large-800k"]
+#MODELS = ["stanford-crfm/music-medium-800k", "stanford-crfm/music-small-800k"]
+MODELS = ["stanford-crfm/music-small-800k", "stanford-crfm/music-medium-800k", 'stanford-crfm/music-large-800k']
+#MODELS = ["stanford-crfm/music-large-800k", "stanford-crfm/music-medium-800k", 'stanford-crfm/music-small-800k']
 
 class Predictor(BasePredictor):
     def setup(self):
         """Load the model into memory to make running multiple predictions efficient"""
         # Model should be loaded here with the appropriate configuration
-        self.models = [AutoModelForCausalLM.from_pretrained(m).cuda() for m in MODELS]
+        self.models = {}
+
+    def _load_model(self, m):
+        if m not in self.models:
+            self.models[m] = AutoModelForCausalLM.from_pretrained(m).cuda()
+        return self.models[m]
 
     def predict(self,
                 model: str = Input(description="Model to use for prediction", choices=MODELS, default=MODELS[0]),
@@ -20,15 +28,23 @@ class Predictor(BasePredictor):
                 end_time: float = Input(description="End time for the generation", default=10),
                 top_p: float = Input(description="Nucleus sampling probability", default=0.95),
                 mode: str = Input(description="Generation mode: 'AR' or 'AAR'", default='AR'),
-                #inputs: str = Input(description="Input tokens as string", default=""),
-                #controls: str = Input(description="Control tokens as string", default=""),
+                inputs: str = Input(description="Input tokens as string", default=""),
+                controls: str = Input(description="Control tokens as string", default=""),
                 debug: bool = Input(description="Enable debug outputs", default=False)
                 ) -> str:
         """Run a single prediction on the model"""
         # Convert string inputs back to lists (assuming simple comma-separated tokens)
-        model = self.models[model]
-        input_tokens = None
-        control_tokens = None
+        model = self._load_model(m)
+
+        if inputs and inputs != "":
+            inputs = json.loads(inputs)
+        else:
+            inputs = None
+
+        if controls and controls != "":
+            controls = json.loads(controls)
+        else:
+            controls = None
 
         # Choose generation mode
         if mode == 'AR':
@@ -38,7 +54,5 @@ class Predictor(BasePredictor):
         else:
             raise ValueError("Invalid mode specified. Choose 'AR' or 'AAR'.")
 
-        # Convert the result back to a string (or could format as JSON or another format as needed)
-        result_str = ','.join(map(str, result))
         return result_str
 
